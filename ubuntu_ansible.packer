@@ -1,0 +1,64 @@
+{
+  "variables": {
+    "aws_access_key": "xxxxxxxxxxxxxxxxx",
+    "aws_secret_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+   "builders": [
+      {
+        "type": "amazon-ebs",
+        "region": "us-west-2",
+        "access_key": "{{user `aws_access_key`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "source_ami": "ami-9abea4fb",
+        "communicator": "ssh",
+        "instance_type": "t2.medium",
+        "ssh_username": "ubuntu",
+        "ami_name": "HSoP-{{isotime | clean_ami_name}}",
+        "ami_description": "ubuntu AMI soumya",
+        "tags": {
+               "role": "my_cs"
+        },
+        "run_tags": {
+                "role": "Bastion_server"
+         }
+     }
+  ],
+  "provisioners": [
+        {
+            "type": "file",
+            "source": "./my_requirements.txt",
+            "destination": "/home/ubuntu/"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+          "inline": [
+              "sleep 30",
+              "apt-add-repository ppa:ansible/ansible -y",
+              "/usr/bin/apt-get update",
+              "/usr/bin/apt-get -y install ansible",
+              "mkdir /home/ubuntu/node-app",
+              "chown ubuntu:ubuntu /home/ubuntu/node-app"
+        ]
+    },
+        {
+            "type": "shell",
+            "inline":[
+                "ls -al /home/ubuntu",
+                "cat /home/ubuntu/my_requirements.txt"
+            ]
+        },
+        {
+            "type": "shell",
+            "script": "./creat_var.sh"
+        }
+    ]
+     "post-processors": [
+    [
+      {
+        "output": "manifest.json",
+        "strip_path": true,
+        "type": "manifest"
+      }
+    ]
+  ]
