@@ -13,7 +13,7 @@
         "communicator": "ssh",
         "instance_type": "t2.medium",
         "ssh_username": "ubuntu",
-        "ami_name": "HSoP-{{isotime | clean_ami_name}}",
+        "ami_name": "my-{{isotime | clean_ami_name}}",
         "ami_description": "ubuntu AMI soumya",
         "tags": {
                "role": "my_cs"
